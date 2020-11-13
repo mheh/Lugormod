@@ -88,7 +88,7 @@ extern qboolean BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
 void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,int anim,int setAnimFlags, int iBlend)
 {
 #ifdef _JK2MP
-	assert(ent->client);
+	//assert(ent->client);
 	BG_SetAnim(&ent->client->ps, bgAllAnims[ent->localAnimIndex].anims, setAnimParts, anim, setAnimFlags, iBlend);
 	ent->s.legsAnim = ent->client->ps.legsAnim;
 #else
@@ -2790,10 +2790,10 @@ static void AttachRiders( Vehicle_t *pVeh )
 			gentity_t *pilot = (gentity_t *)pVeh->m_ppPassengers[i];
 			int crotchBolt;
 
-			assert(parent->ghoul2);
+			//assert(parent->ghoul2);
 			crotchBolt = trap_G2API_AddBolt(parent->ghoul2, 0, "*driver");
-			assert(parent->client);
-			assert(pilot->client);
+			//assert(parent->client);
+			//assert(pilot->client);
 
 			VectorSet(yawOnlyAngles, 0, parent->client->ps.viewangles[YAW], 0);
 
@@ -2818,8 +2818,8 @@ static void AttachRiders( Vehicle_t *pVeh )
 		gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
 		gentity_t *droid = (gentity_t *)pVeh->m_pDroidUnit;
 
-		assert(parent->ghoul2);
-		assert(parent->client);
+		//assert(parent->ghoul2);
+		//assert(parent->client);
 		//assert(droid->client);
 
 		if ( droid->client )

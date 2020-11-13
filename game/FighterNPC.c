@@ -184,7 +184,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 // Like a think or move command, this updates various vehicle properties.
 static bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 {
-	assert(pVeh->m_pParentEntity);
+	//assert(pVeh->m_pParentEntity);
 	if (!BG_FighterUpdate(pVeh, pUcmd, ((gentity_t *)pVeh->m_pParentEntity)->mins,
 		((gentity_t *)pVeh->m_pParentEntity)->maxs, 
 #ifdef _JK2MP

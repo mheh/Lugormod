@@ -992,6 +992,43 @@ void GenerateCvarDocs() {
 	fileHandle_t cvars;
 	int i;
 	char *buf;
+
+#ifdef LMD_EXPORT_MARKDOWN
+	trap_FS_FOpenFile("docs/cvars.md", &cvars, FS_WRITE);
+	buf = va("# Lugormod U# 2.4.8.4 Cvarlist\n");
+	trap_FS_Write(buf, strlen(buf), cvars);
+	
+	for(i = 0;i<gameCvarTableSize;i++) {
+		if(gameCvarTable[i].description == NULL)
+			continue;
+		if(gameCvarTable[i].cvarFlags & CVAR_ROM || gameCvarTable[i].cvarFlags & CVAR_CHEAT || gameCvarTable[i].cvarFlags & CVAR_INTERNAL)
+			continue;
+
+		//cvar name
+		buf = va("## %s\n", gameCvarTable[i].cvarName);
+		trap_FS_Write(buf, strlen(buf), cvars);
+
+		//Default value
+		if(gameCvarTable[i].defaultString){
+			buf = va("### Default value: %s\n", gameCvarTable[i].defaultString);
+			trap_FS_Write(buf, strlen(buf), cvars);
+		}
+		if(gameCvarTable[i].cvarFlags & CVAR_LATCH) {
+			buf = "### Restart required\n";
+			trap_FS_Write(buf, strlen(buf), cvars);
+		}
+		if(gameCvarTable[i].description) {
+			buf = va("%s\n", gameCvarTable[i].description);
+			trap_FS_Write(buf, strlen(buf), cvars);
+		}
+		trap_FS_Write("\n\n", 1, cvars);
+	}
+	buf = va("List generated: %s\n", __DATE__);
+	trap_FS_Write(buf, strlen(buf), cvars);
+	trap_FS_FCloseFile(cvars);
+
+
+#else
 	trap_FS_FOpenFile("docs/cvars.txt", &cvars, FS_WRITE);
 	for(i = 0;i<gameCvarTableSize;i++) {
 		if(gameCvarTable[i].description == NULL)
@@ -1017,6 +1054,7 @@ void GenerateCvarDocs() {
 	trap_FS_FCloseFile(cvars);
 }
 
+#endif
 #endif
 
 void G_InitGame					( int levelTime, int randomSeed, int restart );
@@ -1065,8 +1103,8 @@ void JKG_UnpatchEngine();
 #endif
 
 #ifdef LMD_EXPERIMENTAL
-void ActivateCrashHandler();
-void DeactivateCrashHandler();
+//void ActivateCrashHandler();
+//void DeactivateCrashHandler();
 #else
 void EnableStackTrace();
 void DisableStackTrace();
@@ -1081,7 +1119,7 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 		switch ( command ) {
 	case GAME_INIT:
 #ifdef LMD_EXPERIMENTAL
-		ActivateCrashHandler();
+//		ActivateCrashHandler();
 #else
 		EnableStackTrace();
 #endif
@@ -1102,7 +1140,7 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 		JKG_UnpatchEngine();
 #endif
 #ifdef LMD_EXPERIMENTAL
-		DeactivateCrashHandler();
+//		DeactivateCrashHandler();
 #else
 		DisableStackTrace();
 #endif

@@ -4370,6 +4370,11 @@ void ClientCommand( int clientNum ) {
 		Cmd_Help_f(ent);
 		return;
 	}
+	if (Q_stricmp (cmd, "info") == 0) {
+		Cmd_Help_f(ent);
+		return;
+	}
+		
 	if (Q_stricmp (cmd, "listinvisible") == 0 && Auths_PlayerHasAuthFlag(ent, AUTH_CHEATS)) {
 		int i;
 		gentity_t *check;

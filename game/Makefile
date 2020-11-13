@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -fpermissive -Wfatal-errors -D__linux__ -m32 -D_JK2MP -DQAGAME -DLUGORMOD -DLMD_NEW_WEAPONS -DLMD_NEW_FORCEPOWERS -DLMD_NEW_SKILLSYS -D_DEBUG -D_JK2 -DJK2AWARDS
+CFLAGS = -Wno-write-strings -Wno-narrowing -fpermissive -Wfatal-errors -D__linux__ -m32 -D_JK2MP -DQAGAME -DLUGORMOD -DLMD_NEW_WEAPONS -DLMD_NEW_FORCEPOWERS -DLMD_NEW_SKILLSYS -D_DEBUG -D_JK2 -DJK2AWARDS -DLMD_EXPERIMENTAL
 TARGET = jampgamei386.so
 
 OFILES = \
@@ -178,7 +178,7 @@ w_saber.o \
 WalkerNPC.o
 
 $(TARGET): $(OFILES)
-	$(CC) -shared -o $(TARGET) $(OFILES) -lm -pthread
+	$(CC) -shared -o $(TARGET) $(OFILES) -lm -pthread -m32
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c -o $*.o

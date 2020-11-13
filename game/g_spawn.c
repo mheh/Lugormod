@@ -1061,7 +1061,82 @@ void Cmd_Entityinfo_t(gentity_t *ent, int iArg) {
 		const char *buf;
 		fileHandle_t file;
 		spawn_t *spawn = spawnInitValues;
-#ifdef LMD_EXPORT_XML
+
+#ifdef LMD_EXPORT_MARKDOWN
+		//format:
+		//entityname, logical
+		//description
+		//spawnflags
+		//keys
+		
+		trap_FS_FOpenFile("docs/entities.md", &file, FS_WRITE);
+		buf = "# Lugormod U# 2.4.8.4 Entitylist\n\n";
+		trap_FS_Write(buf, strlen(buf), file);
+
+		while(spawn->name) {
+			//entity name, if logical or not
+			buf = va("## %s\nLogical: %s\n", spawn->name, spawn->logical.allow ? "true" : "false");
+			trap_FS_Write(buf, strlen(buf), file);
+
+			//entity description
+			if (spawn->info) {
+
+				if (spawn->info->description != NULL) {
+					buf = va("### Description\n%s\n", spawn->info->description);
+					trap_FS_Write(buf, strlen(buf), file);
+				}
+
+				//entity spawnflags, needs to be ``` spawnflags ``` format for MD, 10 character for spawnflag value
+				if (spawn->info->spawnflags != NULL) {
+					i = 0;
+					buf = "### Spawnflags\n```\n";
+					trap_FS_Write(buf, strlen(buf), file);
+					for (data = spawn->info->spawnflags; data->key != NULL; data++) {
+						buf = va("%-10s: %s\n", data->key, data->value);
+						trap_FS_Write(buf, strlen(buf), file);
+					}
+
+					buf = "```\n";
+					trap_FS_Write(buf, strlen(buf), file);
+				}
+
+				//entity keys, needs to be ``` key : value ``` format for MD, 30 characters enough for key?
+				if(spawn->info->keys != NULL) {
+					buf = "### Keys\n```\n";
+					trap_FS_Write(buf, strlen(buf), file);
+					for(data = spawn->info->keys; data->key != NULL; data++) {
+						if(Q_stricmp(data->key, "#UKEYS") == 0) {
+							const entityInfoData_t *d2;
+							for(d2 = usable_key_description; d2->key != NULL; d2++) {
+								buf = va("%-20s: %s\n", d2->key, d2->value);
+								trap_FS_Write(buf, strlen(buf), file);
+							}
+						}
+						else if(Q_stricmp(data->key, "#MODEL") == 0) {
+							buf = va("%-20s: %s\n", model_key_description.key, model_key_description.value);
+							trap_FS_Write(buf, strlen(buf), file);
+						}
+						else if(Q_stricmp(data->key, "#HITBOX") == 0) {
+							buf = va("%-20s: %s\n", hitbox_key_description.key, hitbox_key_description.value);
+							trap_FS_Write(buf, strlen(buf), file);
+						}
+						else {
+							buf = va("%-20s: %s\n", data->key, data->value);
+							trap_FS_Write(buf, strlen(buf), file);
+						}
+					}
+					buf = "```\n";
+					trap_FS_Write(buf, strlen(buf), file);
+				}
+			}
+			buf = "\n";
+			trap_FS_Write(buf, strlen(buf), file);
+			spawn++;
+		}
+		buf = va("List generated: %s\n", __DATE__);
+		trap_FS_Write(buf, strlen(buf), file);
+		
+#elif LMD_EXPORT_XML
 		trap_FS_FOpenFile("docs/entities.xml", &file, FS_WRITE);
 		buf = "<entities>\r\n";
 		trap_FS_Write(buf, strlen(buf), file);
