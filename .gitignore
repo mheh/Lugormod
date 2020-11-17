@@ -65,7 +65,7 @@ _Chutzpah*
 
 # Visual C++ cache files
 ipch/
-.vs
+.vs/
 *.db
 *.db-shm
 *.db-wal
