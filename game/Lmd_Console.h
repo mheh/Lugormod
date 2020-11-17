@@ -1,6 +1,8 @@
 
 
 #define CT_N "^7"
+#define EC	"\x19"
+
 
 #ifdef LMD_DYNAMICTHEME
 //base
