@@ -1,5 +1,17 @@
 # Lugormod U#
 
+## This fork
+
+Builds JK2game in VS2019 when using the build project feature. Botlib does not compile due to abs() errors.
+
+Requires:
+C++ MFC v142 build tools
+C++ MFC v141 build tools
+
+C++ ATL v142 build tools
+C++ ATL v141 build tools
+
+
 Credits to:
 
 Lugor       - for creating early versions of the mod,
