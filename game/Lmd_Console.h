@@ -32,10 +32,8 @@
 
 //base, notify
 #define CT_B "^3"
-
 // base value
 #define CT_B_V "^2"
-
 //command
 #define CT_C "^5"
 
@@ -72,10 +70,8 @@
 
 //unable to perform, not applicable
 #define CT_NA "^6"
-
 //na value
 #define CT_NAV "^3"
-
 //error
 #define CT_E "^1"
 

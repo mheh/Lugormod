@@ -1176,36 +1176,109 @@ void dispEntityInfo (gentity_t *ent, gentity_t *tEnt){
 	DispContiguous(ent, NULL);
 }
 
+/*
+	LMD Cmd_Trace_f 
+
+	Searches arguments key val offset
+	Searches arguments key val
+	Searches arguments entnum
+	Searches client crosshair
+	Plays h_evil bolt
+
+	Usage:
+			/trace <key> <val> <offset>
+			/trace <key> <val>
+			/trace <entnum>
+			/trace
+			
+*/
+
 void Cmd_Trace_f (gentity_t *ent, int iArg) {
 	gentity_t *tEnt;
-	if (trap_Argc() > 1) {
-		int entnr;
-		char arg[16];
-		trap_Argv(1, arg, sizeof(arg));
-		entnr = atoi(arg);
-		if(entnr == 0 && !(arg[0] == '0' && arg[1] == 0)) {
-			Disp(ent, "^3Invalid entity number");
+	
+	if (trap_Argc() > 1) 
+	{
+		if (trap_Argc() >= 3) {
+			char key[MAX_STRING_CHARS]; // search key
+			char value[MAX_STRING_CHARS]; // search val
+			char ofsarg[MAX_STRING_CHARS]; // client provided offset for display
+			int ofs; // have to convert ofsarg to an int
+			int foundEnts = 0; // ent counter
+			int show = 0; // display counter
+
+			trap_Argv(1, key, sizeof(key));
+			trap_Argv(2, value, sizeof(value));
+			if (trap_Argc() == 4) {
+				//client provided an offset
+				trap_Argv(3, ofsarg, sizeof(ofsarg));
+				ofs = atoi(ofsarg);
+			}
+			else {
+				//client didn't provide an offset
+				ofs = 0;
+			}
+
+			while (tEnt = IterateEnts(tEnt)) {
+
+				if (key[0] && (!tEnt->Lmd.spawnData || !EntityMatches(tEnt, key, value, qtrue)))
+					continue; // it doesn't match
+
+				if (foundEnts >= ofs) {
+					if (show <= 10) {
+						dispEntityInfo(ent, tEnt);
+						++show; // incriment show counter
+					}
+				}
+
+				++foundEnts; // incriment the ent counter
+
+			}
+
+			Disp(ent, CT_B "==========================================");
+			Disp(ent, va(CT_B "Displaying " CT_B_V "%i" CT_B " to " CT_B_V "%i" CT_B " of " CT_B_V "%i" CT_B " entities found.", ofs, ofs + 10, foundEnts));
+
 			return;
 		}
-		tEnt = GetEnt(entnr);
+
+
+		//if (trap_Argc() > 1) {
+		//client searching just #
+		else {
+			int entnr;
+			char arg[16];
+			trap_Argv(1, arg, sizeof(arg));
+			entnr = atoi(arg);
+
+			if (entnr == 0 && !(arg[0] == '0' && arg[1] == 0)) {
+				Disp(ent, CT_E "Invalid entity number");
+				return;
+			}
+			
+			tEnt = GetEnt(entnr);
+		}
 	}
-	else {
+	
+	else 
+	{
 		if (!ent)
 			return;
 
 		G_PlayEffectID(G_EffectIndex("env/hevil_bolt"), ent->client->renderInfo.eyePoint, ent->client->ps.viewangles);
 		tEnt = AimAnyTarget(ent, 8192);
 	}
+
 	if (!tEnt || !tEnt->inuse){
-		Disp(ent, "^3Entity not found");
+		Disp(ent, CT_E "Entity not found");
 		return;
 	}
+	
 	dispEntityInfo(ent,tEnt);
 }
 
 void Cmd_UseEnt_f(gentity_t *ent, int iArg){
 	gentity_t *tEnt;
 	char arg[MAX_STRING_CHARS] = "";
+
 	if(trap_Argc() > 1){
 		trap_Argv(1, arg, sizeof(arg));
 		if(iArg == 0){
