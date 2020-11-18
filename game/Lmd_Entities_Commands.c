@@ -28,17 +28,16 @@ void BlowUpEntity (gentity_t *ent) {
 
 	VectorSet(upVec, -90,0,0);                        
 	G_PlayEffectID(G_EffectIndex("env/ion_cannon_explosion"), pos, upVec);
-
 	G_RadiusDamage( pos, NULL, 300, 512, ent, ent, MOD_TRIGGER_HURT);
-	if (ent->s.number >= MAX_CLIENTS) {
+
+	if (ent->s.number >= MAX_CLIENTS)
 		G_FreeEntity(ent);
-	}
 	else {
 		ent->client->noCorpse = qtrue;
 		Cmd_Kill_f (ent);
-		if (ent->health < 1) {
+
+		if (ent->health < 1)
 			DismembermentTest(ent);
-		}
 	}
 }
 
@@ -54,9 +53,9 @@ void Cmd_Bounds_f (gentity_t *ent, int iArg) {
 	char *arg = ConcatArgs(1);
 	int i = atoi(arg);
 	gentity_t *targ = NULL;
-	if (!arg[0]) {
+
+	if (!arg[0])
 		targ = AimAnyTarget(ent, 8192);
-	}
 	else if (i != 0 || (arg[0] == '0' && arg[1] == 0)) {
 		targ = GetEnt(i);
 	}
@@ -118,7 +117,6 @@ void Cmd_Bounds_f (gentity_t *ent, int iArg) {
 		G_TestLine(t2, t4, 0xff0000, lineTime);
 		G_TestLine(t3, t4, 0xff0000, lineTime);
 
-
 		// Sides
 		G_TestLine(b1, t1, 0xff0000, lineTime);
 		G_TestLine(b2, t2, 0xff0000, lineTime);
@@ -139,6 +137,7 @@ void Cmd_Bounds_f (gentity_t *ent, int iArg) {
 			fileHandle_t fh = 0;
 			char model[MAX_STRING_CHARS];
 			char *p;
+
 			if (!Lmd_Data_IsCleanPath(arg)) {
 				Disp(ent, CT_E "Invalid path.");
 				return;
@@ -150,9 +149,9 @@ void Cmd_Bounds_f (gentity_t *ent, int iArg) {
 				Disp(ent, CT_E "Ghoul2 models are not supported.");
 				return;
 			}
-			if (!(p = strstr(model, ".md3")) || p[4] != 0) {
+
+			if (!(p = strstr(model, ".md3")) || p[4] != 0)
 				Q_strcat(model, sizeof(model), ".md3");
-			}
 
 			trap_FS_FOpenFile(model, &fh, FS_READ);
 			if (!fh)
@@ -180,9 +179,8 @@ void Cmd_Bounds_f (gentity_t *ent, int iArg) {
 			}
 		}
 	}
-	else {
+	else
 		Disp(ent, CT_B "Usage: \'" CT_C "bounds " CT_AO "[model name | entity number]");
-	}
 }
 
 void Cmd_BlowUp_f (gentity_t *ent, int iArg) {
@@ -195,6 +193,7 @@ void Cmd_BlowUp_f (gentity_t *ent, int iArg) {
 		G_PlayEffectID(G_EffectIndex(STANDARD_BEAM), ent->client->renderInfo.eyePoint, ent->client->ps.viewangles);
 		tEnt = AimAnyTarget(ent, 8192);
 	}
+
 	if (tEnt && tEnt->inuse) {
 		BlowUpEntity(tEnt);
 		Disp(ent, CT_B "Entity detonated.");
@@ -207,6 +206,7 @@ qboolean Action_UndoDelete(gentity_t *ent, Action_t *action){
 	char arg[MAX_STRING_CHARS];
 
 	trap_Argv(2, arg, sizeof(arg));
+
 	if(Q_stricmp(arg, "respawn") == 0){
 		SpawnData_t *spawnData;
 		gentity_t *spawn;
@@ -215,14 +215,14 @@ qboolean Action_UndoDelete(gentity_t *ent, Action_t *action){
 		spawnData = ParseEntitySpawnstring(action->strArgs[0]);
 		Lmd_Entities_SetSaveable(spawnData, action->iArgs[0]);
 
-		if(!(spawn = spawnEntityFromData(spawnData)))
+		if (!(spawn = spawnEntityFromData(spawnData)))
 			Disp(ent, CT_E "Failed to spawn entity.");
-		else{
+		else {
 			Disp(ent, va(CT_B "Entity respawned with entity number" CT_B_V " %i", spawn->s.number));
 			return qtrue;
 		}
 	}
-	else{
+	else {
 		Disp(ent, va(CT_B "Last deleted entity had spawnstring:\n" CT_B_V "%s\n"
 			CT_B "Use \'" CT_C "actions " CT_AR "undodelete " CT_AO "respawn" CT_B "\' to respawn it.",
 			action->strArgs[0]));
@@ -238,12 +238,12 @@ qboolean EntityMatches(gentity_t *ent, char *key, char *value, qboolean partial)
 	int index = Lmd_Entities_getSpawnstringKeyIndex(ent->Lmd.spawnData, key);
 	char *keyValue;
 
-	if(index == -1)
+	if (index == -1)
 		return qfalse;
 	
 	keyValue = Lmd_Entities_getSpawnstringKeyValue(ent->Lmd.spawnData, index);
 
-	if(partial)
+	if (partial)
 		return (strstr(keyValue, value) != NULL);
 	else
 		return (Q_stricmp(keyValue, value) == 0);
@@ -265,6 +265,7 @@ void Cmd_DelAll_Confirm(gentity_t *ent, void *dataptr) {
 	while(trace = IterateEnts(trace)) {
 		if(!trace->Lmd.spawnData)
 			continue;
+		
 		if(!EntityMatches(trace, data->key, data->value, qfalse))
 			continue;
 	
@@ -279,14 +280,13 @@ void Cmd_DelAll_f(gentity_t *ent, int iArg) {
 	int argc = trap_Argc();
 	char key[MAX_STRING_CHARS], *value;
 	gentity_t *trace = NULL;
-	int argbase = 0;
-	int c = 0;
+	int argbase = 0, c = 0;
 
-	if(argc >= 3) {
+	if (argc >= 3) {
 		trap_Argv(1, key, sizeof(key));
 		value = ConcatArgs(2);
 	}
-	else if(argc == 2) {
+	else if (argc == 2) {
 		Q_strncpyz(key, "classname", sizeof(key));
 		value = ConcatArgs(1);
 	}
@@ -296,11 +296,13 @@ void Cmd_DelAll_f(gentity_t *ent, int iArg) {
 	}
 
 
-	while(trace = IterateEnts(trace)) {
+	while (trace = IterateEnts(trace)) {
 		if(!trace->Lmd.spawnData)
 			continue;
+		
 		if(!EntityMatches(trace, key, value, qfalse))
 			continue;
+		
 		c++;
 	}
 
@@ -315,16 +317,15 @@ void Cmd_DelAll_f(gentity_t *ent, int iArg) {
 }
 
 void Cmd_Delent_f(gentity_t *ent, int iArg){
-	int index;
+	int index, sLen;
 	gentity_t *targ = NULL;
 	Action_t *action;
 	char *spawnstring;
-	int sLen;
 
-	if(trap_Argc() < 2) {
+	if (trap_Argc() < 2) {
 		targ = AimAnyTarget(ent, 8192);
 
-		if(!targ) {
+		if (!targ) {
 			Disp(ent, CT_E "You are not aiming at a target.");
 			return;
 		}
@@ -333,16 +334,18 @@ void Cmd_Delent_f(gentity_t *ent, int iArg){
 		index = atoi(ConcatArgs(1));
 		targ = GetEnt(index);
 		
-		if(!targ || !targ->inuse) {
+		if (!targ || !targ->inuse) {
 			Disp(ent, CT_E "Invalid entity.");
 			return;
 		}
-		if(targ->s.number == ENTITYNUM_WORLD) {
+
+		if (targ->s.number == ENTITYNUM_WORLD) {
 			Disp(ent, CT_E "You cannot delete the worldspawn.");
 			return;
 		}
 	}
-	if(!targ->Lmd.spawnData){
+
+	if (!targ->Lmd.spawnData){
 		Disp(ent, CT_E "You cannot delete this entity.");
 		return;
 	}
@@ -353,17 +356,19 @@ void Cmd_Delent_f(gentity_t *ent, int iArg){
 
 	Disp(ent, va(CT_B "Deleting entity: " CT_B_V "%i. " CT_B "Spawnstring:\n" CT_B_V "%s", targ->s.number, spawnstring));
 
-	if((action = PlayerActions_Add(ent, "undodelete", "View the spawnstring of, or respawn, the last deleted entity", Action_UndoDelete, qtrue))){
+	if ( (action = PlayerActions_Add(ent, "undodelete", "View the spawnstring of, or respawn, the last deleted entity", Action_UndoDelete, qtrue)) ) 
+	{
 		action->strArgs[0] = spawnstring;
 		action->iArgs[0] = Lmd_Entities_IsSaveable(targ);
 	}
+	
 	G_FreeEntity(targ);
 }
 
 void Cmd_DisableEnt_f(gentity_t *ent, int iArg){
 	gentity_t *targ = NULL;
 
-	if(trap_Argc() >= 2){
+	if (trap_Argc() >= 2) {
 		char buf[MAX_STRING_CHARS];
 		int itarg;
 
@@ -371,30 +376,32 @@ void Cmd_DisableEnt_f(gentity_t *ent, int iArg){
 		itarg = atoi(buf);
 		targ = GetEnt(itarg);
 	}		
-	else{
+	else {
 		G_PlayEffectID(G_EffectIndex(STANDARD_BEAM), ent->client->renderInfo.eyePoint, ent->client->ps.viewangles);
 		targ = AimAnyTarget(ent, 8024);
 	}
 
-	if(!targ || !targ->inuse){
+	if (!targ || !targ->inuse) {
 		Disp(ent, CT_E "Invalid entity.");
 		return;
 	}
 
-	if(targ->flags & FL_TEAMSLAVE){
+	if (targ->flags & FL_TEAMSLAVE) {
 		targ = targ->teammaster;
 
-		if(!targ || !targ->inuse){
+		if (!targ || !targ->inuse) {
 			Disp(ent, CT_E "Entity is a part of a team bound to an invalid leader.");
 			return;
 		}
+
 		Disp(ent, CT_B "Effect entity auto redirected to team master.");
 	}
-	if(targ->flags & FL_INACTIVE){
+
+	if (targ->flags & FL_INACTIVE) {
 		targ->flags &= ~FL_INACTIVE;
 		Disp(ent, CT_B "Target " CT_S "activated");
 	}
-	else{
+	else {
 		targ->flags |= FL_INACTIVE;
 		Disp(ent, CT_B "Target " CT_NA "deactivated");
 	}
@@ -402,57 +409,57 @@ void Cmd_DisableEnt_f(gentity_t *ent, int iArg){
 
 void Cmd_Entitylist_f(gentity_t *ent, int iArg) {
 	int argc = trap_Argc();
-	int ofs = 0, show = 25, c = 0;
+	int ofs = 0, show = 25, c = 0, argbase = 0;
 	char key[MAX_STRING_CHARS], *value;
 	gentity_t *trace = NULL;
-	int argbase = 0;
 	qboolean partial = qfalse;
 	//entitylist [offset] <key/classname> <value>
 
 	trap_Argv(1, key, sizeof(key));
 	if ( atoi(key) != 0 || (key[0] == '0' && key[1] == 0) ) {
 		ofs = atoi(key) - 1;
-		if (ofs < 0)
-			ofs = 0;
 		argbase = 1;
 		key[0] = 0;
+		if (ofs < 0)
+			ofs = 0;
 	}
 
-	if(argc >= 3 + argbase) {
+	if (argc >= 3 + argbase) {
 		trap_Argv(1 + argbase, key, sizeof(key));
 		value = ConcatArgs(2 + argbase);
 	}
-	else if(argc == 2 + argbase) {
+	else if (argc == 2 + argbase) {
 		Q_strncpyz(key, "classname", sizeof(key));
 		value = ConcatArgs(1 + argbase);
 		partial = qtrue;
 	}
+
 	DispContiguous(ent, CT_B " -------------------------------------");
 
 	show = -ofs;
-	while(trace = IterateEnts(trace)) {
-		
+	while (trace = IterateEnts(trace)) {		
 		if(key[0] && (!trace->Lmd.spawnData || !EntityMatches(trace, key, value, qtrue)))
 			continue;
 
 		c++;
-
 		show++;
-		if(show <= 0)
+
+		if (show <= 0)
 			continue;
-		if(show < 25) {
+		if (show < 25)
 			DispContiguous(ent, va(CT_B_V "%-7i %s", trace->s.number, FormattedEntString(trace)));
-		}
 	}
 
-	if(ofs > c)
+	if (ofs > c)
 		DispContiguous(ent, va(CT_E "Offset out of range. " CT_B "Only " CT_B_V "%i " CT_B "entities were found.", c));
 	else {
 		int end = ofs + 25;
 		if(end > c)
 			end = c;
+		
 		DispContiguous(ent, va(CT_B "Displaying " CT_B_V "%i " CT_B "to " CT_B_V "%i " CT_B "of %i entities found.", ofs + 1, end, c));
 	}
+
 	DispContiguous(ent, CT_B "-------------------------------------");
 	DispContiguous(ent, NULL);
 }
@@ -463,6 +470,7 @@ void Cmd_GetEnt_f(gentity_t *ent, int iArg) {
 		Disp(ent, CT_E "No entity specified.");
 		return;
 	}
+	
 	gentity_t *targ = GetEnt(atoi(ConcatArgs(1)));
 	vec3_t dest, temp;
 
@@ -471,7 +479,7 @@ void Cmd_GetEnt_f(gentity_t *ent, int iArg) {
 		return;
 	}
 
-	if (targ->r.bmodel){
+	if (targ->r.bmodel) {
 		VectorAverage(targ->r.mins, targ->r.maxs, dest);
 	
 		if (targ->r.currentAngles[0] || targ->r.currentAngles[1] || targ->r.currentAngles[2])
@@ -508,7 +516,6 @@ void Cmd_PlayerSpawnPoint_f (gentity_t *ent, int iArg)
 {
 	team_t          team;
 	gentity_t		*spawnent;
-	//vec3_t          origin;
 	char    *classname;
 	SpawnData_t * spawnData;
 
@@ -544,11 +551,10 @@ void Cmd_PlayerSpawnPoint_f (gentity_t *ent, int iArg)
 
 	spawnent = spawnEntityFromData(spawnData);
 
-	if(!spawnent)
+	if (!spawnent)
 		Disp(ent, CT_E "Failed to spawn entity.");
-	else {
+	else
 		Disp(ent, va(CT_B "Entity " CT_B_V "%i " CT_B "has been spawned.", spawnent->s.number));
-	}
 }
 
 gentity_t *Lmd_logic_entity(int index);
@@ -569,7 +575,8 @@ void Cmd_Mapents_f(gentity_t *ent, int iArg){
 		int l = 0, lc = Lmd_logic_count();
 
 		for (i = 0; i < MAX_GENTITIES; i++) {
-			if (g_entities[i].inuse) {
+			if (g_entities[i].inuse) 
+			{
 				if (g_entities[i].Lmd.spawnData)
 					c++;
 				t++;
@@ -581,10 +588,10 @@ void Cmd_Mapents_f(gentity_t *ent, int iArg){
 		for (i = 0; i < lc ; i++) {
 			scan = Lmd_logic_entity(i);
 			
-			if (scan->inuse) {
-				if (scan->Lmd.spawnData) {
+			if (scan->inuse) 
+			{
+				if (scan->Lmd.spawnData)
 					c++;
-				}
 				l++;
 				t++;
 			}
@@ -613,15 +620,18 @@ void Cmd_Mapents_f(gentity_t *ent, int iArg){
 			Disp(ent, CT_E"Expected name of entities to load.");
 			return;
 		}
+
 		trap_Argv(3, arg, sizeof(arg));
+		
 		if (Q_stricmp(arg, "nodefaults") == 0)
 			nodefaults = qtrue;
+		
 		trap_Argv(2, arg, sizeof(arg));
 		LoadEntitiesData(arg, nodefaults);
 		return;
 	}
 	else
-		Disp(ent, CT_E "Unknown argument. " C_B "For usage information, enter the command without args.");
+		Disp(ent, CT_E "Unknown argument. " CT_B "For usage information, enter the command without args.");
 }
 
 void Cmd_Nearby_f(gentity_t *ent, int iArg){
@@ -640,7 +650,8 @@ void Cmd_Nearby_f(gentity_t *ent, int iArg){
 	count = G_RadiusList(ent->r.currentOrigin, i, ent, qfalse, ent_list, qtrue);
 	
 	for (i = 0; i < count; i++) {
-		if (search[0]) {
+		if (search[0]) 
+		{
 			if (Q_stricmpn(ent_list[i]->classname, search, strlen(search)) != 0)
 				continue;
 		}
@@ -855,7 +866,7 @@ void Cmd_Place_f (gentity_t *ent, int iArg){
 	}
 	Disp(ent, va(CT_B "Entity spawned as number " CT_B_V "%i", spawn->s.number));
 
-	if(classname[0] != '*') {
+	if (classname[0] != '*') {
 		if (spawn->r.contents) {
 			qboolean change = qfalse;
 
@@ -928,7 +939,7 @@ void SP_random_spot (gentity_t *ent);
 void Cmd_PlaceRandomSpot_f (gentity_t *ent, int iArg){
 	gentity_t *spot;
 	
-	if ( !(spot = trySpawn(va("classname,random_spot,origin,%s,angle,%.0f", vtos2(ent->client->ps.origin), ent->client->ps.viewangles[YAW]))) ) {
+	if ( !(spot = trySpawn(va( "classname,random_spot,origin,%s,angle,%.0f", vtos2(ent->client->ps.origin), ent->client->ps.viewangles[YAW]))) ) {
 		Disp(ent, CT_E "Failed to spawn entity.");
 		return;
 	}
@@ -992,7 +1003,6 @@ void Cmd_Remap_f(gentity_t *ent, int iArg){
 	}
 	else
 		Disp(ent, CT_E "Uknown argument. Use the command without args for its usage.");
-
 
 	//trap_G2API_InitGhoul2Model: one of the args is a custom shader, check it?
 }
@@ -1146,7 +1156,7 @@ void Cmd_Spawnstring_f(gentity_t *ent, int iArg){
 		if (spawnEntity(targ, curSpawn) == NULL) {
 			Disp(ent, CT_E "Entity failed to respawn, reverting...");
 			
-			if(spawnEntity(targ, backupSpawn) == NULL)
+			if (spawnEntity(targ, backupSpawn) == NULL)
 				Disp(ent, CT_E "Failed to revert to old spawnstring, entity did not spawn.");
 			else
 				removeSpawnstring(curSpawn);
@@ -1186,21 +1196,25 @@ void dispEntityInfo (gentity_t *ent, gentity_t *tEnt){
 		getSpawnstringPairs(tEnt->Lmd.spawnData, &set);
 
 		for (i = 0; i < set.count; i++) {
-			if (Q_stricmp(set.pairs[i].key, "group") == 0 || Q_stricmp(set.pairs[i].key, "origin") == 0 ||
-				Q_stricmp(set.pairs[i].key, "classname") == 0 || Q_stricmp(set.pairs[i].key, "model") == 0 ||
-				Q_stricmp(set.pairs[i].key, "mins") == 0 || Q_stricmp(set.pairs[i].key, "maxs") == 0) {
+			if (Q_stricmp(set.pairs[i].key, "group") == 0		|| Q_stricmp(set.pairs[i].key, "origin") == 0 ||
+				Q_stricmp(set.pairs[i].key, "classname") == 0	|| Q_stricmp(set.pairs[i].key, "model") == 0 ||
+				Q_stricmp(set.pairs[i].key, "mins") == 0		|| Q_stricmp(set.pairs[i].key, "maxs") == 0) 
+			{
 					continue;
 			}
+			
 			DispContiguous(ent, va(CT_B "%s: " CT_B_V "%s", set.pairs[i].key, set.pairs[i].value));
 
-			if (Q_stricmpn(set.pairs[i].key, "target", 6) == 0 && (set.pairs[i].key[6] == 0 || (set.pairs[i].key[6] >= '1' && set.pairs[i].key[6] <= '6'))) {
+			if (Q_stricmpn(set.pairs[i].key, "target", 6) == 0 && (set.pairs[i].key[6] == 0 || (set.pairs[i].key[6] >= '1' && set.pairs[i].key[6] <= '6'))) 
+			{
 				gentity_t *t = NULL;
 				
 				while ( (t = G_Find (t, FOFS(targetname), set.pairs[i].value)) != NULL ) {
 					DispContiguous(ent, va("   " CT_B_V "%i: %s", t->s.number, FormattedEntString(t)));
 				}
 			}
-			else if(Q_stricmp(set.pairs[i].key, "targetname") == 0) {
+			else if(Q_stricmp(set.pairs[i].key, "targetname") == 0) 
+			{
 				gentity_t *t = NULL;
 				qboolean hasOne = qfalse;
 				
@@ -1332,11 +1346,9 @@ void Cmd_Trace_f (gentity_t *ent, int iArg) {
 
 			return;
 		}
-
-
-		//if (trap_Argc() > 1) {
 		//client searching just #
-		else {
+		else 
+		{
 			int entnr;
 			char arg[16];
 			trap_Argv(1, arg, sizeof(arg));
@@ -1410,7 +1422,7 @@ void Cmd_UseEnt_f(gentity_t *ent, int iArg){
 		GlobalUse(tEnt, ent, ent);
 		Disp(ent, CT_S "Entity used.");
 	}
-	else if(iArg == 1) {
+	else if (iArg == 1) {
 		G_UseTargets2(ent, ent, arg);
 		Disp(ent, CT_S "Targetname triggered.");
 	}
